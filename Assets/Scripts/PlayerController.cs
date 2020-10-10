@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D m_rigidBody;
+    private Vector3 touchesEnd;
     public float horizontalBoundary;
     public float horizontalSpeed;
     public float MaxSpeed;
@@ -12,6 +13,7 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Vector3 touchesEnd = new Vector3();
         m_rigidBody = GetComponent<Rigidbody2D>();
     }
 
@@ -24,6 +26,7 @@ public class PlayerController : MonoBehaviour
 
     private void _Move()
     {
+        
         float direction = 0.0f;
         //simple touch input
         //touch input support
@@ -41,6 +44,8 @@ public class PlayerController : MonoBehaviour
                 //direction is negative
                 direction = -1.0f;
             }
+
+            touchesEnd = worldTouch;
         }
 
         //keyboard input 
@@ -58,6 +63,12 @@ public class PlayerController : MonoBehaviour
         Vector2 newVelocity = m_rigidBody.velocity + new Vector2(direction * horizontalSpeed, 0.0f);
         m_rigidBody.velocity = Vector2.ClampMagnitude(newVelocity, MaxSpeed);//will never be greater than max speed
         m_rigidBody.velocity *= 0.99f;
+
+        if(touchesEnd.x != 0.0f)
+        {
+
+           transform.position = new Vector2(Mathf.Lerp(transform.position.x, touchesEnd.x, 0.01f), transform.position.y);// Vector2.Lerp(transform.position, touchesEnd, 0.1f);
+        }
     }
     private void _CheckBounds()
     {//check right and left bounds
