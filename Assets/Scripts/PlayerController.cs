@@ -2,13 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class PlayerController : MonoBehaviour
 {
+    public BulletManger bulletManager;
+
     private Rigidbody2D m_rigidBody;
     private Vector3 touchesEnd;
     public float horizontalBoundary;
     public float horizontalSpeed;
     public float MaxSpeed;
+    public float horizontalLerp;
     
     // Start is called before the first frame update
     void Start()
@@ -22,6 +26,15 @@ public class PlayerController : MonoBehaviour
     {
         _Move();
         _CheckBounds();
+        _FireBullet();
+    }
+
+    private void _FireBullet()
+    {
+        if(Time.frameCount % 20 == 0)//delays bullet firing every 40 frames
+        {
+            bulletManager.GetBullet(transform.position);
+        }      
     }
 
     private void _Move()
@@ -60,14 +73,17 @@ public class PlayerController : MonoBehaviour
             //direction is negative
             direction = -1.0f;
         }
-        Vector2 newVelocity = m_rigidBody.velocity + new Vector2(direction * horizontalSpeed, 0.0f);
-        m_rigidBody.velocity = Vector2.ClampMagnitude(newVelocity, MaxSpeed);//will never be greater than max speed
-        m_rigidBody.velocity *= 0.99f;
-
+        
         if(touchesEnd.x != 0.0f)
         {
 
-           transform.position = new Vector2(Mathf.Lerp(transform.position.x, touchesEnd.x, 0.01f), transform.position.y);// Vector2.Lerp(transform.position, touchesEnd, 0.1f);
+           transform.position = new Vector2(Mathf.Lerp(transform.position.x, touchesEnd.x, horizontalLerp), transform.position.y);// Vector2.Lerp(transform.position, touchesEnd, 0.1f);
+        }
+        else
+        {
+            Vector2 newVelocity = m_rigidBody.velocity + new Vector2(direction * horizontalSpeed, 0.0f);
+            m_rigidBody.velocity = Vector2.ClampMagnitude(newVelocity, MaxSpeed);//will never be greater than max speed
+            m_rigidBody.velocity *= 0.99f;
         }
     }
     private void _CheckBounds()
